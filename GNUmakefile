@@ -16,6 +16,8 @@ ifeq ($(GNUSTEP_MAKEFILES),)
   $(error You need to set GNUSTEP_MAKEFILES before compiling!)
 endif
 
+TALKSOUP_TOP_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
 include $(GNUSTEP_MAKEFILES)/common.make
 
 PACKAGE_NAME=TalkSoup
@@ -35,6 +37,18 @@ endif
 
 ifneq ($(USE_APPKIT),yes)
 USE_APPKIT = no
+endif
+
+# Use netclasses built by the GAP aggregate before it is installed.
+TALKSOUP_NETCLASSES_DIR := $(TALKSOUP_TOP_DIR)/../../libs/netclasses/Source
+
+ifneq ($(wildcard $(TALKSOUP_NETCLASSES_DIR)/netclasses.framework),)
+ADDITIONAL_OBJCFLAGS += -F$(TALKSOUP_NETCLASSES_DIR)
+ifeq ($(OBJC_RUNTIME_LIB), apple)
+ADDITIONAL_LDFLAGS += -F$(TALKSOUP_NETCLASSES_DIR)
+else
+ADDITIONAL_LDFLAGS += -L$(TALKSOUP_NETCLASSES_DIR)/netclasses.framework/Versions/Current
+endif
 endif
 
 export ADDITIONAL_LDFLAGS
